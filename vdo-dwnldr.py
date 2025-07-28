@@ -1,16 +1,15 @@
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import subprocess
 import os
 import sys
 import platform
 import threading
+import re
 
 def install_or_update_yt_dlp():
-    """Verifica se yt-dlp está instalado; se sim, atualiza; senão, tenta instalar."""
     try:
         subprocess.run(["yt-dlp", "--version"], capture_output=True, check=True)
-        # Atualiza yt-dlp para evitar erros com sites
         subprocess.run(["yt-dlp", "-U"], check=True)
         return True
     except FileNotFoundError:
@@ -26,12 +25,9 @@ def install_or_update_yt_dlp():
                 "yt-dlp não encontrado. Instale manualmente com:\n\npip install -U yt-dlp"
             )
         return False
-    
 
-def start_dowload_thread():
+def start_download_thread():
     threading.Thread(target=download_video).start()
-
-
 
 def select_output():
     file_path = filedialog.asksaveasfilename(
@@ -40,13 +36,12 @@ def select_output():
         filetypes=[("Vídeo MP4", "*.mp4")]
     )
     if file_path:
-        output_entry.delete(0, tk.END)
+        output_entry.delete(0, ctk.END)
         output_entry.insert(0, file_path)
 
 def download_video():
     url = url_entry.get().strip()
     output = output_entry.get().strip()
-    
 
     if not url or not output:
         messagebox.showerror("Erro", "URL e caminho de saída são obrigatórios.")
@@ -56,78 +51,84 @@ def download_video():
         messagebox.showerror("Erro", "URL inválida.")
         return
 
-
     if not output.endswith(".mp4"):
         output += ".mp4"
 
+    progress_label.configure(text="0%")
+    progress.set(0)
+
     command = [
         "yt-dlp",
-    ]
-
-    
-
-    command.extend([
+        "--newline",  # necessário para imprimir progresso linha a linha
         "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36",
         "--no-check-certificate",
         "--extractor-args", "generic:impersonate",
         "-f", "b",
         "--merge-output-format", "mp4",
-        url,
-        "-o", output
-    ])
+        "-o", output,
+        url
+    ]
 
     try:
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
-        print(result.stdout)
-        messagebox.showinfo("Sucesso", f"Download concluído:\n{output}")
-    except subprocess.CalledProcessError as e:
-        stderr = e.stderr.lower()
-        print(e.stderr)
-        if "http error 403" in stderr:
-            messagebox.showerror(
-                "Erro 403 - Proibido",
-                "Erro 403 ao tentar baixar o vídeo.\n"
-                "Isso pode ser causado por proteção anti-bot do site ou bloqueio de rede.\n"
-                "Tente alterar sua rede ou configurar proxy/vpn."
-            )
-        else:
-            messagebox.showerror("Erro", f"Erro ao baixar o vídeo:\n{e.stderr}")
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
-# Verifica instalação e atualização
+        for line in process.stdout:
+            print(line.strip())
+            match = re.search(r"\[download\]\s+(\d{1,3}\.\d)%", line)
+            if match:
+                percent = float(match.group(1))
+                progress.set(percent / 100)
+                progress_label.configure(text=f"{percent:.1f}%")
+            app.update_idletasks()
+
+        process.wait()
+
+        if process.returncode == 0:
+            messagebox.showinfo("Sucesso", f"Download concluído:\n{output}")
+        else:
+            messagebox.showerror("Erro", "Erro ao baixar o vídeo.")
+
+    except Exception as e:
+        messagebox.showerror("Erro", f"Ocorreu um erro:\n{e}")
+    finally:
+        progress_label.configure(text="")
+
+# Verifica instalação do yt-dlp
 if not install_or_update_yt_dlp():
     sys.exit(1)
 
-# GUI
-root = tk.Tk()
-root.title("Download de vídeos - yt-dlp GUI")
-root.geometry("460x320")
-root.resizable(False, False)
+# Configura estilo do customtkinter
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
 
-# Link do vídeo
-tk.Label(root, text="Link do vídeo:").pack(pady=(10, 0))
-url_entry = tk.Entry(root, width=60)
-url_entry.pack()
+# GUI principal
+app = ctk.CTk()
+app.title("Download de vídeos - yt-dlp GUI")
+app.geometry("500x400")
+app.resizable(False, False)
 
-# Caminho de saída
-tk.Label(root, text="Salvar como (video.mp4):").pack(pady=(10, 0))
-output_frame = tk.Frame(root)
-output_frame.pack()
-output_entry = tk.Entry(output_frame, width=45)
-output_entry.pack(side=tk.LEFT, padx=(0, 5))
-tk.Button(output_frame, text="Selecionar", command=select_output).pack(side=tk.LEFT)
+# Campo URL
+ctk.CTkLabel(app, text="Link do vídeo:").pack(pady=(10, 0))
+url_entry = ctk.CTkEntry(app, width=460)
+url_entry.pack(pady=5)
 
-
+# Campo caminho de saída
+ctk.CTkLabel(app, text="Salvar como (video.mp4):").pack(pady=(10, 0))
+frame_saida = ctk.CTkFrame(app)
+frame_saida.pack(pady=5)
+output_entry = ctk.CTkEntry(frame_saida, width=360)
+output_entry.pack(side="left", padx=(0, 10), pady=5)
+ctk.CTkButton(frame_saida, text="Selecionar", command=select_output).pack(side="left")
 
 # Botão de download
-tk.Button(
-    root,
-    text="Download",
-    command=start_dowload_thread,
-    bg="#4CAF50",
-    fg="white",
-    height=2,
-    width=20
-).pack(pady=20)
+ctk.CTkButton(app, text="Download", command=start_download_thread, width=200).pack(pady=20)
 
-# Inicia a GUI
-root.mainloop()
+# Barra de progresso + texto %
+progress = ctk.CTkProgressBar(app, orientation="horizontal", width=400, mode="determinate")
+progress.set(0)
+progress.pack(pady=(10, 2))
+progress_label = ctk.CTkLabel(app, text="", font=ctk.CTkFont(size=14))
+progress_label.pack()
+
+# Inicia o app
+app.mainloop()
