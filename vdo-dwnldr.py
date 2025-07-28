@@ -26,14 +26,7 @@ def install_or_update_yt_dlp():
             )
         return False
 
-def select_cookies():
-    file_path = filedialog.askopenfilename(
-        title="Selecione o arquivo de cookies",
-        filetypes=[("Arquivos de cookies", "*.txt"), ("Todos os arquivos", "*.*")]
-    )
-    if file_path:
-        cookies_entry.delete(0, tk.END)
-        cookies_entry.insert(0, file_path)
+
 
 def select_output():
     file_path = filedialog.asksaveasfilename(
@@ -58,9 +51,6 @@ def download_video():
         messagebox.showerror("Erro", "URL inválida.")
         return
 
-    if cookies and not os.path.exists(cookies):
-        messagebox.showerror("Erro", "Arquivo de cookies não encontrado.")
-        return
 
     if not output.endswith(".mp4"):
         output += ".mp4"
@@ -69,8 +59,7 @@ def download_video():
         "yt-dlp",
     ]
 
-    if cookies:
-        command.extend(["--cookies", cookies])
+    
 
     command.extend([
         "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36",
@@ -94,7 +83,7 @@ def download_video():
                 "Erro 403 - Proibido",
                 "Erro 403 ao tentar baixar o vídeo.\n"
                 "Isso pode ser causado por proteção anti-bot do site ou bloqueio de rede.\n"
-                "Tente usar cookies válidos, alterar sua rede ou configurar proxy/vpn."
+                "Tente alterar sua rede ou configurar proxy/vpn."
             )
         else:
             messagebox.showerror("Erro", f"Erro ao baixar o vídeo:\n{e.stderr}")
@@ -122,13 +111,7 @@ output_entry = tk.Entry(output_frame, width=45)
 output_entry.pack(side=tk.LEFT, padx=(0, 5))
 tk.Button(output_frame, text="Selecionar", command=select_output).pack(side=tk.LEFT)
 
-# Cookies (opcional)
-tk.Label(root, text="Arquivo de cookies (.txt) [opcional]:").pack(pady=(10, 0))
-cookies_frame = tk.Frame(root)
-cookies_frame.pack()
-cookies_entry = tk.Entry(cookies_frame, width=45)
-cookies_entry.pack(side=tk.LEFT, padx=(0, 5))
-tk.Button(cookies_frame, text="Selecionar", command=select_cookies).pack(side=tk.LEFT)
+
 
 # Botão de download
 tk.Button(
