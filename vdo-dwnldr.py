@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import platform
+import threading
 
 def install_or_update_yt_dlp():
     """Verifica se yt-dlp está instalado; se sim, atualiza; senão, tenta instalar."""
@@ -25,6 +26,10 @@ def install_or_update_yt_dlp():
                 "yt-dlp não encontrado. Instale manualmente com:\n\npip install -U yt-dlp"
             )
         return False
+    
+
+def start_dowload_thread():
+    threading.Thread(target=download_video).start()
 
 
 
@@ -41,7 +46,7 @@ def select_output():
 def download_video():
     url = url_entry.get().strip()
     output = output_entry.get().strip()
-    cookies = cookies_entry.get().strip()
+    
 
     if not url or not output:
         messagebox.showerror("Erro", "URL e caminho de saída são obrigatórios.")
@@ -117,7 +122,7 @@ tk.Button(output_frame, text="Selecionar", command=select_output).pack(side=tk.L
 tk.Button(
     root,
     text="Download",
-    command=download_video,
+    command=start_dowload_thread,
     bg="#4CAF50",
     fg="white",
     height=2,
