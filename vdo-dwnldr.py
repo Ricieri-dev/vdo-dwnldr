@@ -98,14 +98,14 @@ if not install_or_update_yt_dlp():
     sys.exit(1)
 
 # Configura estilo do customtkinter
-ctk.set_appearance_mode("dark")
+ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
 # GUI principal
 app = ctk.CTk()
 app.title("Download de vídeos - yt-dlp GUI")
-app.geometry("500x400")
-app.resizable(False, False)
+app.geometry("500x500")
+app.resizable(True, True)
 
 # Campo URL
 ctk.CTkLabel(app, text="Link do vídeo:").pack(pady=(10, 0))
