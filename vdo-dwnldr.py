@@ -76,7 +76,7 @@ def download_video():
         "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36",
         "--no-check-certificate",
         "--extractor-args", "generic:impersonate",
-        "-f", "best",
+        "-f", "b",
         "--merge-output-format", "mp4",
         url,
         "-o", output
