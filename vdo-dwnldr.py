@@ -104,7 +104,7 @@ ctk.set_default_color_theme("blue")
 # GUI principal
 app = ctk.CTk()
 app.title("Download de vídeos - yt-dlp GUI")
-app.geometry("500x500")
+app.geometry("500x300")
 app.resizable(True, True)
 
 # Campo URL
@@ -116,12 +116,12 @@ url_entry.pack(pady=5)
 ctk.CTkLabel(app, text="Salvar como (video.mp4):").pack(pady=(10, 0))
 frame_saida = ctk.CTkFrame(app)
 frame_saida.pack(pady=5)
-output_entry = ctk.CTkEntry(frame_saida, width=360)
+output_entry = ctk.CTkEntry(frame_saida, width=250)
 output_entry.pack(side="left", padx=(0, 10), pady=5)
 ctk.CTkButton(frame_saida, text="Selecionar", command=select_output).pack(side="left")
 
 # Botão de download
-ctk.CTkButton(app, text="Download", command=start_download_thread, width=200).pack(pady=20)
+ctk.CTkButton(app, text="Download", command=start_download_thread, width=100).pack(pady=20)
 
 # Barra de progresso + texto %
 progress = ctk.CTkProgressBar(app, orientation="horizontal", width=400, mode="determinate")
