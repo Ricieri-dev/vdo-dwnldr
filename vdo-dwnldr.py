@@ -59,7 +59,7 @@ def download_video():
 
     command = [
         "yt-dlp",
-        "--newline",  # necessário para imprimir progresso linha a linha
+        "--newline",
         "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36",
         "--no-check-certificate",
         "--extractor-args", "generic:impersonate",
@@ -70,7 +70,15 @@ def download_video():
     ]
 
     try:
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        creationflags = subprocess.CREATE_NO_WINDOW if platform.system() == "Windows" else 0
+
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            creationflags=creationflags
+        )
 
         for line in process.stdout:
             print(line.strip())
