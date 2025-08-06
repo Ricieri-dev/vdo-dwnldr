@@ -106,7 +106,7 @@ if not install_or_update_yt_dlp():
     sys.exit(1)
 
 # Configura estilo do customtkinter
-ctk.set_appearance_mode("light")
+ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 # GUI principal
