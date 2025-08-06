@@ -102,6 +102,7 @@ dist\vdo-dwnldr.exe
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT.
+Consute a licença no arquivo LICENSE para obter mais informações.
 
 ---
 
