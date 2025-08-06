@@ -31,8 +31,8 @@ O app facilita o download de vídeos via URL, com escolha do local e nome do arq
 
 *Adicione aqui screenshots do app em funcionamento, por exemplo:*
 
-![Screenshot Modo Claro](link-para-screenshot-claro.png)  
-![Screenshot Modo Escuro](link-para-screenshot-escuro.png)
+![Screenshot Modo Claro](img/screenshot-light.png)  
+![Screenshot Modo Escuro](img/screenshot_dark.png)
 
 ---
 
