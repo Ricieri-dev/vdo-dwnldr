@@ -7,6 +7,7 @@ import platform
 import threading
 import re
 
+# Verifica e instala/atualiza o yt-dlp
 def install_or_update_yt_dlp():
     try:
         subprocess.run(["yt-dlp", "--version"], capture_output=True, check=True)
@@ -26,9 +27,7 @@ def install_or_update_yt_dlp():
             )
         return False
 
-def start_download_thread():
-    threading.Thread(target=download_video).start()
-
+# Seleciona caminho de saída
 def select_output():
     file_path = filedialog.asksaveasfilename(
         title="Salvar como",
@@ -39,6 +38,11 @@ def select_output():
         output_entry.delete(0, ctk.END)
         output_entry.insert(0, file_path)
 
+# Inicia download em thread
+def start_download_thread():
+    threading.Thread(target=download_video).start()
+
+# Função principal de download
 def download_video():
     url = url_entry.get().strip()
     output = output_entry.get().strip()
@@ -101,11 +105,20 @@ def download_video():
     finally:
         progress_label.configure(text="")
 
+# Alterna entre modo escuro e claro
+def toggleTheme():
+    if theme_switch.get() == 1:
+        ctk.set_appearance_mode("light")
+        theme_switch.configure(text="Modo escuro")
+    else:
+        ctk.set_appearance_mode("dark")
+        theme_switch.configure(text="Modo claro")
+
 # Verifica instalação do yt-dlp
 if not install_or_update_yt_dlp():
     sys.exit(1)
 
-# Configura estilo do customtkinter
+# Configura estilo inicial do tema
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
@@ -114,6 +127,14 @@ app = ctk.CTk()
 app.title("Download de vídeos - yt-dlp GUI")
 app.geometry("500x300")
 app.resizable(True, True)
+
+# Switch de tema
+theme_switch = ctk.CTkSwitch(
+    app,
+    text="Modo claro",
+    command=toggleTheme
+)
+theme_switch.place(relx=0.02, rely=0.10, anchor="sw")
 
 # Campo URL
 ctk.CTkLabel(app, text="Link do vídeo:").pack(pady=(10, 0))
